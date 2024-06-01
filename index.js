@@ -31,6 +31,9 @@ async function checkWeather(city){
         document.querySelector('.wind').innerHTML = Math.round(data.wind.speed) + " km/h";
         const cli = data.weather[0].main;
         document.querySelector('.weather-icon').src = `images/${cli}.png`;
+        if(cli=="Haze"){
+            document.querySelector('.weather-icon').src = `images/Mist.png`;
+        }
         weatherElement.style.display = "block";
         errorElement.style.display = "none";
 
