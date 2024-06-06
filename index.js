@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-async function checkWeather(city){
+async function checkWeather(city) {
     try {
         if (!city) {
             throw new Error("Please enter a city name.");
@@ -26,12 +26,15 @@ async function checkWeather(city){
         }
         const data = await response.json();
         document.querySelector('.city').innerHTML = data.name;
-        document.querySelector('.temp').innerHTML = Math.round(data.main.temp) + "°c";
-        document.querySelector('.humidity').innerHTML = data.main.humidity + "%";
-        document.querySelector('.wind').innerHTML = Math.round(data.wind.speed) + " km/h";
+
+        // Animate temperature, humidity, and wind speed
+        animateValue(document.querySelector('.temp'), 0, Math.round(data.main.temp), 1000, '°c');
+        animateValue(document.querySelector('.humidity'), 0, data.main.humidity, 1000, '%');
+        animateValue(document.querySelector('.wind'), 0, Math.round(data.wind.speed), 1000, ' km/h');
+
         const cli = data.weather[0].main;
         document.querySelector('.weather-icon').src = `images/${cli}.png`;
-        if(cli=="Haze"){
+        if (cli == "Haze") {
             document.querySelector('.weather-icon').src = `images/Mist.png`;
         }
         weatherElement.style.display = "block";
@@ -47,7 +50,7 @@ async function checkWeather(city){
 }
 
 function debounce(func, delay) {
-    return function(...args) {
+    return function (...args) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(this, args), delay);
     };
@@ -60,10 +63,27 @@ function handleSearch() {
 
 searchBtn.addEventListener('click', handleSearch);
 
-searchBox.addEventListener('keyup', function(event) {
+searchBox.addEventListener('keyup', function (event) {
     if (event.key === 'Enter') {
         handleSearch();
     } else {
         debounce(handleSearch, 300)();
     }
 });
+
+function animateValue(element, start, end, duration, suffix = '') {
+    let startTime = null;
+
+    function animation(currentTime) {
+        if (startTime === null) startTime = currentTime;
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / duration, 1);
+        const value = Math.floor(progress * (end - start) + start);
+        element.innerHTML = value + suffix;
+        if (progress < 1) {
+            requestAnimationFrame(animation);
+        }
+    }
+
+    requestAnimationFrame(animation);
+}
